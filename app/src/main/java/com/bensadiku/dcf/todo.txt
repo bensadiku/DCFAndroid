@@ -1,5 +1,3 @@
-Workmananger
-improve notifications
 Setup debug/release env
 Setup R8
 write tests

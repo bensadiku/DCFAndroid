@@ -73,12 +73,5 @@ open class CatApplication : Application() {
             ExistingPeriodicWorkPolicy.KEEP,
             repeatingRequest
         )
-
-//        val myWorkBuilder =
-//            PeriodicWorkRequest.Builder(PeriodicFact::class.java, 15, TimeUnit.MINUTES);
-//
-//        val myWork = myWorkBuilder.build();
-//        WorkManager.getInstance(this.applicationContext)
-//            .enqueueUniquePeriodicWork("catFactWorker", ExistingPeriodicWorkPolicy.KEEP, myWork);
     }
 }
