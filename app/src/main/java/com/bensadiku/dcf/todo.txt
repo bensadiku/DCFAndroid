@@ -1,0 +1,7 @@
+Workmananger
+improve notifications
+Setup debug/release env
+Setup R8
+write tests
+dagger 2
+more tests

@@ -1,0 +1,2 @@
+rootProject.name='DCF'
+include ':app'
