@@ -9,17 +9,23 @@ import android.graphics.Color
 import androidx.core.app.NotificationCompat
 import com.bensadiku.dcf.R
 import com.bensadiku.dcf.activities.MainActivity
+import timber.log.Timber
 
 /**
  * A interactor class used to push / hide notifications
  */
 object PushNotification {
+    val hasNotificationsEnabled: Boolean get() = Prefs.getHasNotificationsEnabled()
     val channelId = Constants.NOTIFICATION_CHANNEL_ID
     val channelName = Constants.NOTIFICATION_CHANNEL_NAME
     val notificationId = Constants.NOTIFICATION_ID
     val notificationExtraKey = Constants.NOTIFICATION_BODY_EXTRA_KEY
 
     fun show(messageBody: String, context: Context) {
+        if (!hasNotificationsEnabled){
+            Timber.w("Notifications are disabled, aborting!")
+            return
+        }
         val notificationManager: NotificationManager = context.getSystemService(
             Context.NOTIFICATION_SERVICE
         ) as NotificationManager
@@ -50,11 +56,12 @@ object PushNotification {
             .setStyle(
                 NotificationCompat.BigTextStyle()
                     .bigText(messageBody)
-                    .setBigContentTitle("..and the fact is")
+                    .setBigContentTitle("..and the daily cat fact is")
             )
             .setSmallIcon(R.mipmap.ic_launcher)
-            .setContentIntent(PendingIntent.getActivity(
-                    context, 0, intent,  PendingIntent.FLAG_UPDATE_CURRENT
+            .setContentIntent(
+                PendingIntent.getActivity(
+                    context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT
                 )
             )
 
@@ -62,7 +69,7 @@ object PushNotification {
     }
 
     //removes the notification that was showing
-    fun hide(context: Context){
+    fun hide(context: Context) {
         val notificationManager: NotificationManager = context.getSystemService(
             Context.NOTIFICATION_SERVICE
         ) as NotificationManager

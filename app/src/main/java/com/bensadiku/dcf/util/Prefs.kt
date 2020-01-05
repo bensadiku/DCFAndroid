@@ -11,6 +11,17 @@ object Prefs {
             .getSharedPreferences("CatFactApp", Context.MODE_PRIVATE)
     }
 
+    fun setHasNotificationsEnabled(enabled: Boolean) {
+        getSharedPreferences().edit().putBoolean("Notifications_Enabled", enabled).apply()
+    }
+
+    fun getHasNotificationsEnabled(): Boolean {
+        return getSharedPreferences().getBoolean(
+            "Notifications_Enabled",
+            true    //by default send notifications
+        )
+    }
+
     fun resetAll() {
         getSharedPreferences().edit().clear().apply()
     }

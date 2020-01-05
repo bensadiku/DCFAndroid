@@ -30,6 +30,10 @@ class MainActivity : AppCompatActivity() {
             mainViewModel.getAndStartFactCounter()
         }
 
+        binding.settingsBtn.setOnClickListener {
+            startActivity(Intent(this, SettingsActivity::class.java))
+        }
+
         mainViewModel.catFact.observe(this, Observer { catFact ->
             binding.catFactView.text = catFact
         })
