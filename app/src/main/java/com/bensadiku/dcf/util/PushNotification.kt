@@ -45,8 +45,13 @@ object PushNotification {
             context,
             channelId
         )
-            .setContentTitle("The daily cat fact is here!!")
+            .setContentTitle("The daily cat fact is here.")
             .setContentText(messageBody)
+            .setStyle(
+                NotificationCompat.BigTextStyle()
+                    .bigText(messageBody)
+                    .setBigContentTitle("..and the fact is")
+            )
             .setSmallIcon(R.mipmap.ic_launcher)
             .setContentIntent(PendingIntent.getActivity(
                     context, 0, intent,  PendingIntent.FLAG_UPDATE_CURRENT
