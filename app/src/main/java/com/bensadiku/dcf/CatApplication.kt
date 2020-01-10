@@ -4,6 +4,7 @@ import android.app.Application
 import android.os.Build
 import android.util.Log
 import androidx.work.*
+import com.bensadiku.dcf.util.Prefs
 import com.bensadiku.dcf.workers.PeriodicFact
 import com.crashlytics.android.Crashlytics
 import timber.log.Timber
@@ -48,9 +49,14 @@ open class CatApplication : Application() {
 
 
     /**
-     * Will fetch a fact every day and push a notification to the user.
+     * Check if user disabled notifications, if so, disable all work manager instances
+     * Else will fetch a fact every day and push a notification to the user.
      */
     private fun setupRecurringWork() {
+        if(!Prefs.getHasNotificationsEnabled()){
+            WorkManager.getInstance(this).cancelAllWork()
+            return
+        }
 
         val constraints = Constraints.Builder()
             .setRequiredNetworkType(NetworkType.UNMETERED)//user wont be charged

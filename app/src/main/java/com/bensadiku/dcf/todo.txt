@@ -3,3 +3,5 @@ Setup R8
 write tests
 dagger 2
 more tests
+settings to change notification time/ enable disable
+jetpack compose eventually
