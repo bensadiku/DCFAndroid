@@ -2,6 +2,7 @@ apply plugin: 'com.android.application'
 apply plugin: 'io.fabric'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-kapt'
 
 android {
     compileSdkVersion 29
@@ -13,6 +14,16 @@ android {
     }
     kotlinOptions {
         jvmTarget = JavaVersion.VERSION_1_8.toString()
+    }
+
+    buildFeatures {
+        // Determines whether to enable support for Jetpack Compose.
+        compose = false
+        // Determines whether to generate a BuildConfig class.
+        buildConfig = true
+        // Determines whether to support View Binding.
+        // Note that the viewBinding.enabled property is now deprecated.
+        viewBinding = true
     }
 
     defaultConfig {
@@ -30,10 +41,6 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
-    }
-
-    viewBinding {
-        enabled = true
     }
 
 }
@@ -77,5 +84,8 @@ dependencies {
     //timber
     implementation 'com.jakewharton.timber:timber:4.7.1'
 
+    //dagger
+    implementation 'com.google.dagger:dagger:2.24'
+    kapt 'com.google.dagger:dagger-compiler:2.24'
 }
 apply plugin: 'com.google.gms.google-services'

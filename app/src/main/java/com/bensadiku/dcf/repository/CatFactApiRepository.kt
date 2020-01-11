@@ -5,8 +5,9 @@ import com.bensadiku.dcf.interfaces.CatFactCallback
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
+import javax.inject.Inject
 
-class CatFactApiRepository {
+class CatFactApiRepository @Inject constructor() {
     var disposable: Disposable? = null
 
     fun getCatFacts(catFactCallback: CatFactCallback) {
