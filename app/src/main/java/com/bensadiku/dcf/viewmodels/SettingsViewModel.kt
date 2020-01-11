@@ -71,13 +71,23 @@ class SettingsViewModel @Inject constructor(): ViewModel() {
 
     fun getNotificationProgressSeekbar(): Int {
         val notificationTimer = Prefs.getNotificationTimeSeekbar()
-        return notificationTimer.interval * 4
+        return when (notificationTimer.timeUnit) {
+            TimeUnit.HOURS -> {
+                notificationTimer.interval * 4
+            }
+            TimeUnit.MINUTES -> {
+                notificationTimer.interval % 4
+            }
+            else -> {
+                notificationTimer.interval * 4
+            }
+        }
     }
 
     /**
      * Save the choice to the preferences and refreshes the view
-     * If user selected more than 1 hr, ignore minutes and set TimeUnit.MINUTES
-     * else store minutes and ignore hrs and set TimeUnit.HOURS
+     * If user selected more than 1 hr, ignore minutes and set TimeUnit.HOURS
+     * else store minutes, ignore hrs and set TimeUnit.MINUTES
      */
     fun saveNotificationTime() {
         Timber.w("Saving the timer")
