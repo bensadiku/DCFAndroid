@@ -9,6 +9,7 @@ import com.bensadiku.dcf.BuildConfig
 import androidx.lifecycle.ViewModelProvider
 import com.bensadiku.dcf.CatApplication
 import com.bensadiku.dcf.databinding.ActivitySettingsBinding
+import com.bensadiku.dcf.util.Prefs
 import com.bensadiku.dcf.util.PushNotification
 import com.bensadiku.dcf.viewmodels.SettingsViewModel
 import timber.log.Timber
@@ -31,12 +32,18 @@ class SettingsActivity : AppCompatActivity() {
         (application as CatApplication).getComponent().inject(this)
 
         //viewmodel
-        settingsViewModel = ViewModelProviders.of(this, viewModelFactory)[SettingsViewModel::class.java]
+        settingsViewModel =
+            ViewModelProviders.of(this, viewModelFactory)[SettingsViewModel::class.java]
 
-        binding.settingsNotificationSwitch.isChecked = settingsViewModel.hasNotificationsEnabled
         binding.settingsNotificationSwitch.setOnCheckedChangeListener { _, isChecked ->
             Timber.w(" allow notifications $isChecked")
             settingsViewModel.hasNotificationsEnabled = isChecked
+        }
+
+        binding.settingsResetBtn.setOnClickListener {
+            settingsViewModel.reset()
+            updateView()
+            Timber.w("Reset everything happened")
         }
 
         if (BuildConfig.DEBUG) {
@@ -50,7 +57,7 @@ class SettingsActivity : AppCompatActivity() {
             SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 if (fromUser) {
-                    settingsViewModel.setNotificationTimeSeekbar(progress)
+                    settingsViewModel.calculateAndShowTimer(progress)
                 }
             }
 
@@ -65,5 +72,16 @@ class SettingsActivity : AppCompatActivity() {
         settingsViewModel.timeSelected.observe(this, Observer { time ->
             binding.settingsNotificationTimeHrsTextview.text = time
         })
+
+        updateView()
+    }
+
+    /**
+     * Used to update the view when we do a setting reset
+     */
+    private fun updateView() {
+        settingsViewModel.initPreviousSettings()
+        binding.settingsNotificationTimeSeekbar.setProgress(settingsViewModel.getNotificationProgressSeekbar())//update the progress to the default value
+        binding.settingsNotificationSwitch.isChecked = settingsViewModel.hasNotificationsEnabled //update the switch to the default value
     }
 }
