@@ -6,23 +6,32 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.bensadiku.dcf.BuildConfig
+import androidx.lifecycle.ViewModelProvider
+import com.bensadiku.dcf.CatApplication
 import com.bensadiku.dcf.databinding.ActivitySettingsBinding
 import com.bensadiku.dcf.util.PushNotification
 import com.bensadiku.dcf.viewmodels.SettingsViewModel
 import timber.log.Timber
+import javax.inject.Inject
 
 
 class SettingsActivity : AppCompatActivity() {
 
     lateinit var binding: ActivitySettingsBinding
     lateinit var settingsViewModel: SettingsViewModel
+    @Inject
+    lateinit var viewModelFactory: ViewModelProvider.Factory
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivitySettingsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        settingsViewModel = ViewModelProviders.of(this)[SettingsViewModel::class.java]
+        //inject this activity
+        (application as CatApplication).getComponent().inject(this)
+
+        //viewmodel
+        settingsViewModel = ViewModelProviders.of(this, viewModelFactory)[SettingsViewModel::class.java]
 
         binding.settingsNotificationSwitch.isChecked = settingsViewModel.hasNotificationsEnabled
         binding.settingsNotificationSwitch.setOnCheckedChangeListener { _, isChecked ->

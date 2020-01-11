@@ -7,10 +7,9 @@ import com.bensadiku.dcf.interfaces.CatFactCallback
 import com.bensadiku.dcf.models.CatFact
 import com.bensadiku.dcf.repository.CatFactApiRepository
 import timber.log.Timber
+import javax.inject.Inject
 
-class MainViewModel : ViewModel() {
-
-    private val catFactApiRepository: CatFactApiRepository = CatFactApiRepository()
+class MainViewModel @Inject constructor(val catFactApiRepository: CatFactApiRepository) : ViewModel() {
 
     private val _hasResolvedSuccessfully = MutableLiveData<Boolean>(false)
     val hasResolvedSuccessfully: LiveData<Boolean>

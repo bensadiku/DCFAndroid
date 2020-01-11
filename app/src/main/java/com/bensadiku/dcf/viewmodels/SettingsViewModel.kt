@@ -5,8 +5,9 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.bensadiku.dcf.util.Prefs
 import timber.log.Timber
+import javax.inject.Inject
 
-class SettingsViewModel: ViewModel() {
+class SettingsViewModel @Inject constructor(): ViewModel() {
 
     private val _timeSelected = MutableLiveData<String>()
     val timeSelected: LiveData<String>

@@ -4,6 +4,8 @@ import android.app.Application
 import android.os.Build
 import android.util.Log
 import androidx.work.*
+import com.bensadiku.dcf.di.AppComponent
+import com.bensadiku.dcf.di.DaggerAppComponent
 import com.bensadiku.dcf.util.Prefs
 import com.bensadiku.dcf.workers.PeriodicFact
 import com.crashlytics.android.Crashlytics
@@ -11,9 +13,14 @@ import timber.log.Timber
 import java.util.concurrent.TimeUnit
 
 open class CatApplication : Application() {
+
+    private lateinit var appComponent: AppComponent
     override fun onCreate() {
         super.onCreate()
         instance = this
+        //Initiate dagger
+        appComponent = DaggerAppComponent.create()
+        appComponent.inject(this)
 
         if (BuildConfig.DEBUG) {
             Timber.plant(Timber.DebugTree())
@@ -26,6 +33,10 @@ open class CatApplication : Application() {
     companion object {
         var instance: Application? = null
             private set
+    }
+
+    open fun getComponent(): AppComponent {
+        return appComponent
     }
 
     /** A tree which logs important information for crash reporting. */
@@ -53,7 +64,7 @@ open class CatApplication : Application() {
      * Else will fetch a fact every day and push a notification to the user.
      */
     private fun setupRecurringWork() {
-        if(!Prefs.getHasNotificationsEnabled()){
+        if (!Prefs.getHasNotificationsEnabled()) {
             WorkManager.getInstance(this).cancelAllWork()
             return
         }
