@@ -1,12 +1,16 @@
 package com.bensadiku.dcf.activities
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.widget.SeekBar
+import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import com.bensadiku.dcf.BuildConfig
 import com.bensadiku.dcf.databinding.ActivitySettingsBinding
 import com.bensadiku.dcf.util.PushNotification
 import com.bensadiku.dcf.viewmodels.SettingsViewModel
 import timber.log.Timber
+
 
 class SettingsActivity : AppCompatActivity() {
 
@@ -26,8 +30,31 @@ class SettingsActivity : AppCompatActivity() {
             settingsViewModel.hasNotificationsEnabled = isChecked
         }
 
-        binding.settingsNotificationView.setOnClickListener {
-            PushNotification.show("testing",this)
+        if (BuildConfig.DEBUG) {
+            binding.settingsNotificationView.setOnClickListener {
+                PushNotification.show("testing", this)
+            }
         }
+
+        binding.settingsNotificationTimeSeekbar.setMax(24 * 4)
+        binding.settingsNotificationTimeSeekbar.setOnSeekBarChangeListener(object :
+            SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                if (fromUser) {
+                    settingsViewModel.setNotificationTimeSeekbar(progress)
+                }
+            }
+
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {
+            }
+
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {
+                settingsViewModel.saveNotificationTime()
+            }
+        })
+
+        settingsViewModel.timeSelected.observe(this, Observer { time ->
+            binding.settingsNotificationTimeHrsTextview.text = time
+        })
     }
 }

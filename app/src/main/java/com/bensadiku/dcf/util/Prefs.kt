@@ -22,6 +22,15 @@ object Prefs {
         )
     }
 
+    fun setNotificationTimeSeekbar(progression: Int) {
+
+        getSharedPreferences().edit().putInt("Notifications_Timer", progression).apply()
+    }
+
+    fun getNotificationTimeSeekbar(): Int {
+        return getSharedPreferences().getInt("Notifications_Timer", 24)
+    }
+
     fun resetAll() {
         getSharedPreferences().edit().clear().apply()
     }
