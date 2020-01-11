@@ -9,12 +9,10 @@ import com.bensadiku.dcf.BuildConfig
 import androidx.lifecycle.ViewModelProvider
 import com.bensadiku.dcf.CatApplication
 import com.bensadiku.dcf.databinding.ActivitySettingsBinding
-import com.bensadiku.dcf.util.Prefs
 import com.bensadiku.dcf.util.PushNotification
 import com.bensadiku.dcf.viewmodels.SettingsViewModel
 import timber.log.Timber
 import javax.inject.Inject
-
 
 class SettingsActivity : AppCompatActivity() {
 
@@ -53,11 +51,15 @@ class SettingsActivity : AppCompatActivity() {
         }
 
         binding.settingsNotificationTimeSeekbar.setMax(24 * 4)
+        /**
+         * Calculate and save the new timer selected by user.
+         * Minimum timer is 15 minutes(minimum timer allowed by work manager), max is 24 hrs.
+         */
         binding.settingsNotificationTimeSeekbar.setOnSeekBarChangeListener(object :
             SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 if (fromUser) {
-                    settingsViewModel.calculateAndShowTimer(progress)
+                    settingsViewModel.calculateAndShowTimer(progress + 1)
                 }
             }
 

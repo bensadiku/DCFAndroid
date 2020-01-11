@@ -61,13 +61,14 @@ open class CatApplication : Application() {
 
     /**
      * Check if user disabled notifications, if so, disable all work manager instances
-     * Else will fetch a fact every day and push a notification to the user.
+     * Else will fetch a fact every interval user set, by default 12 hrs, and push a notification to the user.
      */
     private fun setupRecurringWork() {
         if (!Prefs.getHasNotificationsEnabled()) {
             WorkManager.getInstance(this).cancelAllWork()
             return
         }
+        val notificationTimer = Prefs.getNotificationTimeSeekbar()
 
         val constraints = Constraints.Builder()
             .setRequiredNetworkType(NetworkType.UNMETERED)//user wont be charged
@@ -80,7 +81,7 @@ open class CatApplication : Application() {
             }.build()
 
         val repeatingRequest = PeriodicWorkRequestBuilder<PeriodicFact>(
-            24, TimeUnit.HOURS, 5,
+            notificationTimer.interval.toLong(), notificationTimer.timeUnit, 5,
             TimeUnit.MINUTES
         )
             .setConstraints(constraints)

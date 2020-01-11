@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import com.bensadiku.dcf.models.NotificationTimer
 import com.bensadiku.dcf.util.Prefs
 import timber.log.Timber
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 class SettingsViewModel @Inject constructor(): ViewModel() {
@@ -31,17 +32,17 @@ class SettingsViewModel @Inject constructor(): ViewModel() {
      */
      fun initPreviousSettings() {
         val notificationTimer = Prefs.getNotificationTimeSeekbar()
-        notificationHours = notificationTimer.hr
-        notificationMinutes = notificationTimer.minutes
+        val timeUnit: TimeUnit = notificationTimer.timeUnit
+        val interval = notificationTimer.interval
         val timeSelectedText: String = when {
-            notificationHours == 0 -> {
-                "$notificationMinutes minutes."
+            timeUnit == TimeUnit.MINUTES -> {
+                "$interval minutes."
             }
-            notificationMinutes == 0 -> {
-                "$notificationHours hours."
+            timeUnit == TimeUnit.HOURS -> {
+                "$interval hours."
             }
             else -> {
-                "$notificationHours hours $notificationMinutes minutes."
+                " "
             }
         }
         _timeSelected.value = timeSelectedText
@@ -53,20 +54,39 @@ class SettingsViewModel @Inject constructor(): ViewModel() {
     fun calculateAndShowTimer(progress: Int) {
         notificationHours = progress / 4 // it will return hours.
         notificationMinutes = progress % 4 * 15 // here will be minutes.
-        _timeSelected.value = "$notificationHours hours $notificationMinutes minutes"
+
+        val timeSelectedText: String = when {
+            notificationHours > 0 -> {
+                "$notificationHours hours."
+            }
+            notificationHours == 0 -> {
+                "$notificationMinutes minutes."
+            }
+            else -> {
+                "$notificationHours hours $notificationMinutes minutes."
+            }
+        }
+        _timeSelected.value = timeSelectedText
     }
 
     fun getNotificationProgressSeekbar(): Int {
         val notificationTimer = Prefs.getNotificationTimeSeekbar()
-        return notificationTimer.hr * 4
+        return notificationTimer.interval * 4
     }
 
     /**
-     * Second part saves the choice to the preferences and refreshes the view
+     * Save the choice to the preferences and refreshes the view
+     * If user selected more than 1 hr, ignore minutes and set TimeUnit.MINUTES
+     * else store minutes and ignore hrs and set TimeUnit.HOURS
      */
     fun saveNotificationTime() {
         Timber.w("Saving the timer")
-        Prefs.setNotificationTimeSeekbar(NotificationTimer(hr = notificationHours, minutes = notificationMinutes))
+        val notificationTimer: NotificationTimer = if (notificationHours == 0) {
+            NotificationTimer(interval = notificationMinutes, timeUnit = TimeUnit.MINUTES)
+        } else {
+            NotificationTimer(interval = notificationHours, timeUnit = TimeUnit.HOURS)
+        }
+        Prefs.setNotificationTimeSeekbar(notificationTimer)
     }
 
     fun reset(){
