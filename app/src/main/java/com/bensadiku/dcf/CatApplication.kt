@@ -12,7 +12,7 @@ import com.crashlytics.android.Crashlytics
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
 
-open class CatApplication : Application() {
+open class CatApplication : Application(), Configuration.Provider  {
 
     private lateinit var appComponent: AppComponent
     override fun onCreate() {
@@ -88,8 +88,16 @@ open class CatApplication : Application() {
             .build()
         WorkManager.getInstance(this.applicationContext).enqueueUniquePeriodicWork(
             PeriodicFact.WORK_NAME,
-            ExistingPeriodicWorkPolicy.KEEP,
+            ExistingPeriodicWorkPolicy.REPLACE,
             repeatingRequest
         )
     }
+
+    /**
+     * Get all the possible logs from the workers
+     */
+    override fun getWorkManagerConfiguration(): Configuration =
+        Configuration.Builder()
+            .setMinimumLoggingLevel(Log.VERBOSE)
+            .build()
 }
