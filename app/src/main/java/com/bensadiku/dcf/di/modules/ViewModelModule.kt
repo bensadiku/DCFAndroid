@@ -1,33 +1,18 @@
-package com.bensadiku.dcf.di
+package com.bensadiku.dcf.di.modules
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import com.bensadiku.dcf.di.factories.ViewModelFactory
+import com.bensadiku.dcf.di.keys.ViewModelKey
 import com.bensadiku.dcf.viewmodels.MainViewModel
 import com.bensadiku.dcf.viewmodels.SettingsViewModel
 import dagger.Binds
-import dagger.MapKey
 import dagger.Module
 import dagger.multibindings.IntoMap
-import javax.inject.Inject
-import javax.inject.Provider
-import javax.inject.Singleton
-import kotlin.reflect.KClass
 
 /**
- * Created by Behxhet Sadiku on 1/11/2020.
+ * Created by Behxhet Sadiku on 1/13/2020.
  */
-
-@Singleton
-class ViewModelFactory @Inject constructor(private val viewModels: MutableMap<Class<out ViewModel>, Provider<ViewModel>>) : ViewModelProvider.Factory {
-
-    override fun <T : ViewModel> create(modelClass: Class<T>): T = viewModels[modelClass]?.get() as T
-}
-
-@Target(AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY_GETTER, AnnotationTarget.PROPERTY_SETTER)
-@kotlin.annotation.Retention(AnnotationRetention.RUNTIME)
-@MapKey
-internal annotation class ViewModelKey(val value: KClass<out ViewModel>)
-
 @Module
 abstract class ViewModelModule {
 

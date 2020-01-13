@@ -4,6 +4,7 @@ import com.bensadiku.dcf.CatApplication
 import com.bensadiku.dcf.activities.MainActivity
 import com.bensadiku.dcf.activities.SettingsActivity
 import com.bensadiku.dcf.di.factories.PeriodicWorkerFactory
+import com.bensadiku.dcf.di.modules.ViewModelModule
 import com.bensadiku.dcf.di.modules.WorkerAssistedInjectModule
 import com.bensadiku.dcf.di.modules.WorkerBindingModule
 import dagger.Component
