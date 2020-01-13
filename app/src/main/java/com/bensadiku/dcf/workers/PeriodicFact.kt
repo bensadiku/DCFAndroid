@@ -1,16 +1,23 @@
 package com.bensadiku.dcf.workers
 
 import android.content.Context
+import androidx.work.ListenableWorker
 import androidx.work.Worker
 import androidx.work.WorkerParameters
 import com.bensadiku.dcf.interfaces.CatFactCallback
 import com.bensadiku.dcf.models.CatFact
 import com.bensadiku.dcf.repository.CatFactApiRepository
 import com.bensadiku.dcf.util.PushNotification
+import com.squareup.inject.assisted.Assisted
+import com.squareup.inject.assisted.AssistedInject
 import retrofit2.HttpException
 import timber.log.Timber
 
-class PeriodicFact(appContext: Context, params: WorkerParameters) : Worker(appContext, params) {
+class PeriodicFact @AssistedInject constructor(
+    @Assisted private val appContext: Context,
+    @Assisted private val params: WorkerParameters,
+    private val repository: CatFactApiRepository
+) : Worker(appContext, params) {
 
     companion object {
         const val WORK_NAME = "PeriodicFact"
@@ -18,7 +25,6 @@ class PeriodicFact(appContext: Context, params: WorkerParameters) : Worker(appCo
 
     override fun doWork(): Result {
 
-        val repository = CatFactApiRepository()
         return try {
             repository.getCatFacts(object : CatFactCallback {
                 override fun gotFact(catFact: CatFact) {
@@ -39,5 +45,10 @@ class PeriodicFact(appContext: Context, params: WorkerParameters) : Worker(appCo
             Result.retry()
         }
     }
+    @AssistedInject.Factory
+    interface Factory : ChildWorkerFactory
 }
 
+interface ChildWorkerFactory {
+    fun create(appContext: Context, params: WorkerParameters): ListenableWorker
+}

@@ -6,6 +6,7 @@ import android.util.Log
 import androidx.work.*
 import com.bensadiku.dcf.di.AppComponent
 import com.bensadiku.dcf.di.DaggerAppComponent
+import com.bensadiku.dcf.di.factories.PeriodicWorkerFactory
 import com.bensadiku.dcf.util.Prefs
 import com.bensadiku.dcf.workers.PeriodicFact
 import com.crashlytics.android.Crashlytics
@@ -13,7 +14,6 @@ import timber.log.Timber
 import java.util.concurrent.TimeUnit
 
 open class CatApplication : Application(), Configuration.Provider  {
-
     private lateinit var appComponent: AppComponent
     override fun onCreate() {
         super.onCreate()
@@ -27,7 +27,8 @@ open class CatApplication : Application(), Configuration.Provider  {
         } else {
             Timber.plant(CrashReportingTree())
         }
-        setupRecurringWork()
+
+        setupWorkManager()
     }
 
     companion object {
@@ -37,6 +38,15 @@ open class CatApplication : Application(), Configuration.Provider  {
 
     open fun getComponent(): AppComponent {
         return appComponent
+    }
+
+    /**
+     * Sets up a custom worker factory for dependency injection
+     */
+    private fun setupWorkManager() {
+        val factory: PeriodicWorkerFactory = appComponent.createWorkerFactory()
+        WorkManager.initialize(this, Configuration.Builder().setWorkerFactory(factory).build())
+        setupRecurringWork()
     }
 
     /** A tree which logs important information for crash reporting. */
