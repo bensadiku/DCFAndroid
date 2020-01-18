@@ -91,7 +91,7 @@ open class CatApplication : Application(), Configuration.Provider  {
             }.build()
 
         val repeatingRequest = PeriodicWorkRequestBuilder<PeriodicFact>(
-            notificationTimer.interval.toLong(), notificationTimer.timeUnit, 5,
+            notificationTimer.interval.toLong(), notificationTimer.timeUnit, 15,
             TimeUnit.MINUTES
         )
             .setConstraints(constraints)
