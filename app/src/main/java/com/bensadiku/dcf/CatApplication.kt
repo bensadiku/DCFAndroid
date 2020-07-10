@@ -1,7 +1,6 @@
 package com.bensadiku.dcf
 
 import android.app.Application
-import android.os.Build
 import android.util.Log
 import androidx.work.*
 import com.bensadiku.dcf.di.AppComponent
@@ -10,7 +9,9 @@ import com.bensadiku.dcf.di.factories.PeriodicWorkerFactory
 import com.bensadiku.dcf.util.Prefs
 import com.bensadiku.dcf.workers.PeriodicFact
 import com.crashlytics.android.Crashlytics
+import com.google.common.util.concurrent.ListenableFuture
 import timber.log.Timber
+import java.util.concurrent.ExecutionException
 import java.util.concurrent.TimeUnit
 
 open class CatApplication : Application(), Configuration.Provider  {
@@ -46,7 +47,9 @@ open class CatApplication : Application(), Configuration.Provider  {
     private fun setupWorkManager() {
         val factory: PeriodicWorkerFactory = appComponent.createWorkerFactory()
         WorkManager.initialize(this, Configuration.Builder().setWorkerFactory(factory).build())
-        setupRecurringWork()
+        if (!isWorkScheduled(PeriodicFact.WORK_NAME)) {
+            setupRecurringWork()
+        }
     }
 
     /** A tree which logs important information for crash reporting. */
@@ -75,31 +78,27 @@ open class CatApplication : Application(), Configuration.Provider  {
      */
     private fun setupRecurringWork() {
         if (!Prefs.getHasNotificationsEnabled()) {
-            WorkManager.getInstance(this).cancelAllWork()
+            WorkManager.getInstance(this).cancelAllWorkByTag(PeriodicFact.WORK_NAME)
             return
         }
         val notificationTimer = Prefs.getNotificationTimeSeekbar()
 
         val constraints = Constraints.Builder()
-            .setRequiredNetworkType(NetworkType.UNMETERED)//user wont be charged
-            .setRequiresBatteryNotLow(true)
-            .setRequiresCharging(true)
-            .apply {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    setRequiresDeviceIdle(true)//users are not using the device, so it wont affect usage
-                }
-            }.build()
+                .setRequiredNetworkType(NetworkType.NOT_REQUIRED)
+                .setRequiresBatteryNotLow(true)
+                .build()
 
         val repeatingRequest = PeriodicWorkRequestBuilder<PeriodicFact>(
-            notificationTimer.interval.toLong(), notificationTimer.timeUnit, 5,
-            TimeUnit.MINUTES
-        )
-            .setConstraints(constraints)
-            .build()
+                notificationTimer.interval.toLong(), notificationTimer.timeUnit, 15,
+                TimeUnit.MINUTES
+        ).setBackoffCriteria(BackoffPolicy.LINEAR, 15, TimeUnit.SECONDS)
+                .setConstraints(constraints)
+                .addTag(PeriodicFact.WORK_NAME)
+                .build()
         WorkManager.getInstance(this.applicationContext).enqueueUniquePeriodicWork(
-            PeriodicFact.WORK_NAME,
-            ExistingPeriodicWorkPolicy.REPLACE,
-            repeatingRequest
+                PeriodicFact.WORK_NAME,
+                ExistingPeriodicWorkPolicy.KEEP,
+                repeatingRequest
         )
     }
 
@@ -110,4 +109,24 @@ open class CatApplication : Application(), Configuration.Provider  {
         Configuration.Builder()
             .setMinimumLoggingLevel(Log.VERBOSE)
             .build()
+
+    private fun isWorkScheduled(tag: String): Boolean {
+        val instance = WorkManager.getInstance(this)
+        val statuses: ListenableFuture<List<WorkInfo>> = instance.getWorkInfosByTag(tag)
+        return try {
+            var running = false
+            val workInfoList: List<WorkInfo> = statuses.get()
+            for (workInfo in workInfoList) {
+                val state = workInfo.state
+                running = state == WorkInfo.State.RUNNING || state == WorkInfo.State.ENQUEUED
+            }
+            running
+        } catch (e: ExecutionException) {
+            e.printStackTrace()
+            false
+        } catch (e: InterruptedException) {
+            e.printStackTrace()
+            false
+        }
+    }
 }

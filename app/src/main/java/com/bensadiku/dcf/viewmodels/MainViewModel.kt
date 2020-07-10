@@ -9,7 +9,7 @@ import com.bensadiku.dcf.repository.CatFactApiRepository
 import timber.log.Timber
 import javax.inject.Inject
 
-class MainViewModel @Inject constructor(val catFactApiRepository: CatFactApiRepository) : ViewModel() {
+class MainViewModel @Inject constructor(private val catFactApiRepository: CatFactApiRepository) : ViewModel() {
 
     private val _hasResolvedSuccessfully = MutableLiveData<Boolean>(false)
     val hasResolvedSuccessfully: LiveData<Boolean>
@@ -26,6 +26,7 @@ class MainViewModel @Inject constructor(val catFactApiRepository: CatFactApiRepo
             override fun gotFact(catFact: CatFact) {
                 Timber.d("got fact $catFact")
                 _catFact.value = catFact.fact
+                _hasResolvedSuccessfully.value = false
             }
 
             override fun failedFact(throwable: Throwable) {
@@ -33,5 +34,10 @@ class MainViewModel @Inject constructor(val catFactApiRepository: CatFactApiRepo
                 _hasResolvedSuccessfully.value = true
             }
         })
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        catFactApiRepository.clear()
     }
 }

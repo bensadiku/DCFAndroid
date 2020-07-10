@@ -16,8 +16,8 @@ import javax.inject.Inject
 
 class SettingsActivity : AppCompatActivity() {
 
-    lateinit var binding: ActivitySettingsBinding
-    lateinit var settingsViewModel: SettingsViewModel
+    private lateinit var binding: ActivitySettingsBinding
+    private lateinit var settingsViewModel: SettingsViewModel
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
 
@@ -50,7 +50,7 @@ class SettingsActivity : AppCompatActivity() {
             }
         }
 
-        binding.settingsNotificationTimeSeekbar.setMax(24 * 4)
+        binding.settingsNotificationTimeSeekbar.max = 24 * 4
         /**
          * Calculate and save the new timer selected by user.
          * Minimum timer is 15 minutes(minimum timer allowed by work manager), max is 24 hrs.
@@ -83,7 +83,7 @@ class SettingsActivity : AppCompatActivity() {
      */
     private fun updateView() {
         settingsViewModel.initPreviousSettings()
-        binding.settingsNotificationTimeSeekbar.setProgress(settingsViewModel.getNotificationProgressSeekbar())//update the progress to the default value
+        binding.settingsNotificationTimeSeekbar.progress = settingsViewModel.getNotificationProgressSeekbar()//update the progress to the default value
         binding.settingsNotificationSwitch.isChecked = settingsViewModel.hasNotificationsEnabled //update the switch to the default value
     }
 }

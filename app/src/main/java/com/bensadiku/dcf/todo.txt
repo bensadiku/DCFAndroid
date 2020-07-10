@@ -1,6 +1,0 @@
-Setup debug/release env
-Setup R8
-write tests
-dagger 2
-more tests
-jetpack compose eventually
