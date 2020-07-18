@@ -15,15 +15,19 @@ android {
     kotlinOptions {
         jvmTarget = JavaVersion.VERSION_1_8.toString()
     }
+    composeOptions {
+        kotlinCompilerExtensionVersion "0.1.0-dev13"
+    }
+
 
     buildFeatures {
         // Determines whether to enable support for Jetpack Compose.
-        compose = false
+        compose = true
         // Determines whether to generate a BuildConfig class.
         buildConfig = true
         // Determines whether to support View Binding.
         // Note that the viewBinding.enabled property is now deprecated.
-        viewBinding = true
+        viewBinding = false
     }
 
     defaultConfig {
@@ -40,6 +44,10 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+
+        debug {
+            debuggable true
         }
     }
 
@@ -97,5 +105,14 @@ dependencies {
     //assisted inject
     compileOnly "com.squareup.inject:assisted-inject-annotations-dagger2:0.3.2"
     kapt "com.squareup.inject:assisted-inject-processor-dagger2:0.3.2"
+
+    // Compose
+    def compose_version = '0.1.0-dev13'
+    implementation "androidx.compose:compose-runtime:$compose_version"
+    implementation "androidx.ui:ui-core:$compose_version"
+    implementation "androidx.ui:ui-tooling:$compose_version"
+    implementation "androidx.ui:ui-layout:$compose_version"
+    implementation "androidx.ui:ui-material:$compose_version"
+    implementation "androidx.ui:ui-livedata:$compose_version"
 }
 apply plugin: 'com.google.gms.google-services'

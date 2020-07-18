@@ -11,27 +11,21 @@ import javax.inject.Inject
 
 class MainViewModel @Inject constructor(private val catFactApiRepository: CatFactApiRepository) : ViewModel() {
 
-    private val _hasResolvedSuccessfully = MutableLiveData<Boolean>(false)
-    val hasResolvedSuccessfully: LiveData<Boolean>
-        get() = _hasResolvedSuccessfully
-
-
-    //checks if the connection is made successfully
+    // Observed by the activity compose function for changes
     private val _catFact = MutableLiveData<String>()
     val catFact: LiveData<String>
         get() = _catFact
 
-    fun getAndStartFactCounter() {
+    fun getFact() {
         catFactApiRepository.getCatFacts(object : CatFactCallback {
             override fun gotFact(catFact: CatFact) {
                 Timber.d("got fact $catFact")
                 _catFact.value = catFact.fact
-                _hasResolvedSuccessfully.value = false
             }
 
             override fun failedFact(throwable: Throwable) {
                 Timber.d("failedFact ${throwable.printStackTrace()}")
-                _hasResolvedSuccessfully.value = true
+                _catFact.value = "Failed to fetch the latest fact: ${throwable.message}"
             }
         })
     }

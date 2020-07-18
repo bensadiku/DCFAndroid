@@ -1,5 +1,7 @@
 A mini Android app with some neat libraries.
 
+Android Studio 4.2 + required for Jetpack Compose
+
 MIT License
 
 Copyright (c) 2019 Behxhet Sadiku

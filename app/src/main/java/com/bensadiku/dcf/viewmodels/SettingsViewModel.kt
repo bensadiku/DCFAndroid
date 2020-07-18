@@ -9,7 +9,7 @@ import timber.log.Timber
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
-class SettingsViewModel @Inject constructor(): ViewModel() {
+class SettingsViewModel @Inject constructor() : ViewModel() {
 
     private val _timeSelected = MutableLiveData<String>()
     val timeSelected: LiveData<String>
@@ -18,27 +18,37 @@ class SettingsViewModel @Inject constructor(): ViewModel() {
     private var notificationHours: Int = 0
     private var notificationMinutes: Int = 0
 
+    /**
+     * ViewModel livedata state for the activity to check if the notifications are enabled
+     */
+    private val _onNotificationsStateChange = MutableLiveData<Boolean>()
+    val onNotificationsStateChange: LiveData<Boolean>
+        get() = _onNotificationsStateChange
+
+    /**
+     * To update the preferences and the lifecycle state which Compose is observing which will trigger a render
+     */
     var hasNotificationsEnabled: Boolean
         get() {
             return Prefs.getHasNotificationsEnabled()
         }
         set(value) {
+            _onNotificationsStateChange.value = value
             Prefs.setHasNotificationsEnabled(value)
         }
 
     /**
-     * Called when the Activity first starts to update the views
-     * Also called when the reset happens to the Settings to refresh the views with the default data
+     * Called when the reset happens to the Settings to refresh the views with the default data
      */
-     fun initPreviousSettings() {
+    private fun initPreviousSettings() {
         val notificationTimer = Prefs.getNotificationTimeSeekbar()
         val timeUnit: TimeUnit = notificationTimer.timeUnit
         val interval = notificationTimer.interval
-        val timeSelectedText: String = when {
-            timeUnit == TimeUnit.MINUTES -> {
+        val timeSelectedText: String = when (timeUnit) {
+            TimeUnit.MINUTES -> {
                 "$interval minutes."
             }
-            timeUnit == TimeUnit.HOURS -> {
+            TimeUnit.HOURS -> {
                 "$interval hours."
             }
             else -> {
@@ -46,6 +56,8 @@ class SettingsViewModel @Inject constructor(): ViewModel() {
             }
         }
         _timeSelected.value = timeSelectedText
+
+        hasNotificationsEnabled = Prefs.getHasNotificationsEnabled()
     }
 
     /**
@@ -99,7 +111,8 @@ class SettingsViewModel @Inject constructor(): ViewModel() {
         Prefs.setNotificationTimeSeekbar(notificationTimer)
     }
 
-    fun reset(){
+    fun reset() {
         Prefs.resetAll()
+        initPreviousSettings()
     }
 }

@@ -84,7 +84,7 @@ open class CatApplication : Application(), Configuration.Provider  {
         val notificationTimer = Prefs.getNotificationTimeSeekbar()
 
         val constraints = Constraints.Builder()
-                .setRequiredNetworkType(NetworkType.NOT_REQUIRED)
+                .setRequiredNetworkType(NetworkType.CONNECTED)
                 .setRequiresBatteryNotLow(true)
                 .build()
 
