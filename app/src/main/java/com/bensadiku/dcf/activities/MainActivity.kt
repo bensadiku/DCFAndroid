@@ -12,7 +12,6 @@ import androidx.lifecycle.ViewModelProviders
 import androidx.ui.core.Alignment.Companion.CenterHorizontally
 import androidx.ui.core.Modifier
 import androidx.ui.core.setContent
-import androidx.ui.core.tag
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.ContentGravity
 import androidx.ui.foundation.Icon
@@ -27,7 +26,7 @@ import androidx.ui.material.icons.Icons
 import androidx.ui.material.icons.filled.Settings
 import androidx.ui.unit.dp
 import com.bensadiku.dcf.CatApplication
-import com.bensadiku.dcf.util.Constants
+import com.bensadiku.dcf.util.Constants.NOTIFICATION_BODY_EXTRA_KEY
 import com.bensadiku.dcf.util.PushNotification
 import com.bensadiku.dcf.viewmodels.MainViewModel
 import timber.log.Timber
@@ -36,29 +35,6 @@ import javax.inject.Inject
 
 class MainActivity : AppCompatActivity() {
     private lateinit var mainViewModel: MainViewModel
-    private val requestTag = "requestTag"
-    private val settingsTag = "settingsTag"
-    private val factTag = "factTag"
-    private val constraintSet by lazy {
-        ConstraintSet {
-            val showFactConstraint = tag(factTag).apply {
-                left constrainTo parent.left
-                top constrainTo parent.top
-                right constrainTo parent.right
-                bottom constrainTo parent.bottom
-            }
-            tag(requestTag).apply {
-                left constrainTo parent.left
-                right constrainTo parent.right
-                top constrainTo showFactConstraint.bottom
-                top.margin = 50.dp
-            }
-            tag(settingsTag).apply {
-                top constrainTo parent.top
-                right constrainTo parent.right
-            }
-        }
-    }
 
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
@@ -90,17 +66,37 @@ class MainActivity : AppCompatActivity() {
 
     @Composable
     fun LiveDataComponentFact(catFact: String) {
-        ConstraintLayout(constraintSet = constraintSet, modifier = Modifier.fillMaxSize()) {
+        ConstraintLayout(modifier = Modifier.fillMaxSize()) {
+            val (settingsRef, catFactRef, requestAnotherRef) = createRefs()
             IconButton(onClick = {
-                startActivity(Intent(this, SettingsActivity::class.java))
-            }, modifier = Modifier.tag(settingsTag).padding(16.dp)) {
+                startActivity(
+                    Intent(
+                        CatApplication.instance?.applicationContext,
+                        SettingsActivity::class.java
+                    )
+                )
+            }, modifier = Modifier.constrainAs(settingsRef) {
+                top.linkTo(parent.top)
+                end.linkTo(parent.end)
+            }.padding(16.dp)) {
                 Icon(asset = Icons.Filled.Settings, tint = Color.Blue)
             }
-            Text(text = catFact, modifier = Modifier.tag(factTag).padding(20.dp))
+            Text(text = catFact, modifier = Modifier.constrainAs(catFactRef) {
+                start.linkTo(parent.start)
+                top.linkTo(parent.top)
+                end.linkTo(parent.end)
+                bottom.linkTo(parent.bottom)
+            }.padding(20.dp))
             Button(
                 onClick = { mainViewModel.getFact() },
-                modifier = Modifier.tag(requestTag),
-                text = { Text(text = "Request another") })
+                modifier = Modifier.constrainAs(requestAnotherRef) {
+                    start.linkTo(parent.start)
+                    end.linkTo(parent.end)
+                    top.linkTo(catFactRef.bottom, margin = 50.dp)
+                },
+            ) {
+                Text(text = "Request another")
+            }
         }
     }
 
@@ -121,18 +117,17 @@ class MainActivity : AppCompatActivity() {
      * If there are extras, show that fact in the view
      * If not = user just opened the app, load a fact from the API
      */
-    private fun handleIntent(intent: Intent) {
+    private fun handleIntent(intent: Intent?) {
         PushNotification.hide(this)
-        if (intent.extras == null) {
+        if (intent?.extras == null) {
             Timber.d("Intent is null, fetching from API")
             mainViewModel.getFact()
         } else {
             intent.extras?.let {
-                val bodyKey = Constants.NOTIFICATION_BODY_EXTRA_KEY
-                val fact = it.get(bodyKey) as String
-                if (fact.isNotEmpty()) {
+                val fact = it[NOTIFICATION_BODY_EXTRA_KEY] as? String
+                if (!fact.isNullOrEmpty()) {
                     Timber.d("Intent is not null, loading it")
-                    LiveDataComponentFact(fact)
+                    mainViewModel.setFact(fact)
                 } else {
                     Timber.d("Intent is null, fetching from API")
                     mainViewModel.getFact()

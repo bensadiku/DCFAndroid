@@ -8,17 +8,12 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import androidx.ui.core.Modifier
 import androidx.ui.core.setContent
-import androidx.ui.core.tag
 import androidx.ui.foundation.Text
 import androidx.ui.foundation.shape.corner.CutCornerShape
 import androidx.ui.graphics.Color
-import androidx.ui.layout.ConstraintLayout
-import androidx.ui.layout.ConstraintSet
-import androidx.ui.layout.fillMaxSize
-import androidx.ui.layout.padding
+import androidx.ui.layout.*
 import androidx.ui.livedata.observeAsState
 import androidx.ui.material.*
-import androidx.ui.tooling.preview.Preview
 import androidx.ui.unit.dp
 import com.bensadiku.dcf.CatApplication
 import com.bensadiku.dcf.viewmodels.SettingsViewModel
@@ -28,58 +23,6 @@ import javax.inject.Inject
 class SettingsActivity : AppCompatActivity() {
 
     private lateinit var settingsViewModel: SettingsViewModel
-    private val notificationTag = "showNotificationTextTag"
-    private val notificationSwitchTag = "showNotificationSwitchTag"
-    private val div1Tag = "divider1Tag"
-    private val notificationTimerTag = "showNotificationTimerTextTag"
-    private val notificationTimerSeekbarTag = "showNotificationTimerSeekbarTag"
-    private val notificationTimeTextTag = "showNotificationTimeTextTag"
-    private val div2Tag = "divider2Tag"
-    private val resetEverythingBtnTag = "resetEverythingBtnTag"
-
-    ///TODO:(BEN) tidy this
-    private val constraintSet by lazy {
-        ConstraintSet {
-            val showNotificationText = tag(notificationTag).apply {
-                top constrainTo parent.top
-                left constrainTo parent.left
-            }
-            tag(notificationSwitchTag).apply {
-                right constrainTo parent.right
-                top constrainTo parent.top
-            }
-            val div1 = tag(div1Tag).apply {
-                right constrainTo parent.right
-                left constrainTo parent.left
-                top constrainTo showNotificationText.bottom
-            }
-            val showNotificationTimerText = tag(notificationTimerTag).apply {
-                right constrainTo parent.right
-                left constrainTo parent.left
-                top constrainTo div1.bottom
-            }
-            val notificationTimerSeekbar = tag(notificationTimerSeekbarTag).apply {
-                right constrainTo parent.right
-                left constrainTo parent.left
-                top constrainTo showNotificationTimerText.bottom
-            }
-            val notificationTimeText = tag(notificationTimeTextTag).apply {
-                right constrainTo parent.right
-                left constrainTo parent.left
-                top constrainTo notificationTimerSeekbar.bottom
-            }
-            val div2 = tag(div2Tag).apply {
-                right constrainTo parent.right
-                left constrainTo parent.left
-                top constrainTo notificationTimeText.bottom
-            }
-            tag(resetEverythingBtnTag).apply {
-                right constrainTo parent.right
-                left constrainTo parent.left
-                top constrainTo div2.bottom
-            }
-        }
-    }
 
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
@@ -100,7 +43,6 @@ class SettingsActivity : AppCompatActivity() {
         }
     }
 
-    @Preview
     @Composable
     private fun InitSettings() {
         /// The `notifications enabled` state
@@ -115,26 +57,45 @@ class SettingsActivity : AppCompatActivity() {
         val timerTextState = settingsViewModel.timeSelected.observeAsState(initial = "")
 
         ConstraintLayout(
-            constraintSet = constraintSet,
             modifier = Modifier.padding(30.dp).fillMaxSize()
         ) {
-            Text("Allow notifications:", modifier = Modifier.tag(notificationTag))
-            Switch(
-                checked = notificationEnabledState.value,
-                modifier = Modifier.tag(notificationSwitchTag),
-                color = Color.Blue,
-                onCheckedChange = { isChecked ->
-                    Timber.w(" allow notifications $isChecked")
-                    settingsViewModel.hasNotificationsEnabled = isChecked
-                }
-            )
-            Divider(thickness = 1.dp, modifier = Modifier.tag(div1Tag).padding(10.dp))
+            val (firstRow, div1, pushTimerText, pushTimerSeekbar, pushTimerDateText, div2, resetEverythingBtn) = createRefs()
+
+            Row(modifier = Modifier.constrainAs(firstRow) {
+                top.linkTo(parent.top)
+                start.linkTo(parent.start)
+            }) {
+                Text("Allow notifications:")
+                Switch(
+                    checked = notificationEnabledState.value,
+                    modifier = Modifier.padding(start = 6.dp),
+                    color = Color.Blue,
+                    onCheckedChange = { isChecked ->
+                        Timber.w(" allow notifications $isChecked")
+                        settingsViewModel.hasNotificationsEnabled = isChecked
+                    }
+                )
+            }
+
+            Divider(thickness = 1.dp, modifier = Modifier.constrainAs(div1) {
+                start.linkTo(parent.start)
+                end.linkTo(parent.end)
+                top.linkTo(firstRow.bottom)
+            }.padding(10.dp))
             Text(
                 "Show me notifications every:",
-                modifier = Modifier.tag(notificationTimerTag).padding(top = 10.dp)
+                modifier = Modifier.constrainAs(pushTimerText) {
+                    start.linkTo(parent.start)
+                    end.linkTo(parent.end)
+                    top.linkTo(div1.bottom)
+                }.padding(top = 10.dp)
             )
             Slider(
-                modifier = Modifier.tag(notificationTimerSeekbarTag),
+                modifier = Modifier.constrainAs(pushTimerSeekbar) {
+                    end.linkTo(parent.end)
+                    start.linkTo(parent.start)
+                    top.linkTo(pushTimerText.bottom)
+                },
                 color = Color.Blue,
                 valueRange = 0f..24 * 4f,
                 onValueChangeEnd = {
@@ -146,8 +107,16 @@ class SettingsActivity : AppCompatActivity() {
                 },
                 value = seekbarState.value
             )
-            Text(timerTextState.value, modifier = Modifier.tag(notificationTimeTextTag))
-            Divider(thickness = 1.dp, modifier = Modifier.tag(div2Tag).padding(10.dp))
+            Text(timerTextState.value, modifier = Modifier.constrainAs(pushTimerDateText) {
+                start.linkTo(parent.start)
+                end.linkTo(parent.end)
+                top.linkTo(pushTimerSeekbar.bottom)
+            })
+            Divider(thickness = 1.dp, modifier = Modifier.constrainAs(div2) {
+                start.linkTo(parent.start)
+                end.linkTo(parent.end)
+                top.linkTo(pushTimerDateText.bottom)
+            }.padding(10.dp))
             Button(
                 onClick = {
                     settingsViewModel.reset()
@@ -156,7 +125,11 @@ class SettingsActivity : AppCompatActivity() {
                         settingsViewModel.getNotificationProgressSeekbar().toFloat()
                 },
                 shape = CutCornerShape(2.dp),
-                modifier = Modifier.tag(resetEverythingBtnTag).padding(top = 10.dp)
+                modifier = Modifier.constrainAs(resetEverythingBtn) {
+                    start.linkTo(parent.start)
+                    end.linkTo(parent.end)
+                    top.linkTo(div2.bottom)
+                }.padding(top = 10.dp)
             ) {
                 Text(text = "Reset everything?")
             }

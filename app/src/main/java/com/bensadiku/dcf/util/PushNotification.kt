@@ -15,14 +15,14 @@ import timber.log.Timber
  * A interactor class used to push / hide notifications
  */
 object PushNotification {
-    val hasNotificationsEnabled: Boolean get() = Prefs.getHasNotificationsEnabled()
-    val channelId = Constants.NOTIFICATION_CHANNEL_ID
-    val channelName = Constants.NOTIFICATION_CHANNEL_NAME
-    val notificationId = Constants.NOTIFICATION_ID
-    val notificationExtraKey = Constants.NOTIFICATION_BODY_EXTRA_KEY
+    private val hasNotificationsEnabled: Boolean get() = Prefs.getHasNotificationsEnabled()
+    private val channelId = Constants.NOTIFICATION_CHANNEL_ID
+    private val channelName = Constants.NOTIFICATION_CHANNEL_NAME
+    private val notificationId = Constants.NOTIFICATION_ID
+    private val notificationExtraKey = Constants.NOTIFICATION_BODY_EXTRA_KEY
 
     fun show(messageBody: String, context: Context) {
-        if (!hasNotificationsEnabled){
+        if (!hasNotificationsEnabled) {
             Timber.w("Notifications are disabled, aborting!")
             return
         }
@@ -35,12 +35,13 @@ object PushNotification {
                 channelId,
                 channelName,
                 NotificationManager.IMPORTANCE_HIGH
-            )
-            channel.enableLights(true)
-            channel.setLightColor(Color.RED)
-            channel.enableVibration(true)
-            channel.setVibrationPattern(longArrayOf(100, 200, 300, 400, 500, 400, 300, 200, 400))
-            channel.setShowBadge(false)
+            ).apply {
+                enableLights(true)
+                lightColor = Color.RED
+                enableVibration(true)
+                vibrationPattern = longArrayOf(100, 200, 300, 400, 500, 400, 300, 200, 400)
+                setShowBadge(false)
+            }
             notificationManager.createNotificationChannel(channel)
         }
 
