@@ -28,6 +28,10 @@
             android:authorities="${applicationId}.workmanager-init"
             android:exported="false"
             tools:node="remove"/>
+
+        <!-- Needed for UI tests -->
+        <activity
+            android:name="androidx.activity.ComponentActivity"/>
     </application>
 
 </manifest>

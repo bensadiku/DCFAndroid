@@ -34,7 +34,7 @@ class MainViewModel @Inject constructor(private val catFactApiRepository: CatFac
      * @param fact is set by the notification
      */
     fun setFact(fact: String){
-        _catFact.value = fact
+        _catFact.postValue(fact)
     }
 
     override fun onCleared() {
