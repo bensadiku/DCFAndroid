@@ -15,6 +15,12 @@ object Constants {
     const val PUSH_TIMER_TEXT_TEST_TAG = "NotificationsTimerTextTestTag"
     const val DIV2_TAG = "Div2TestTag"
     const val RESET_EVERYTHING_BUTTON_TAG = "ResetEverythingButtonTag"
+    const val APP_THEME_TEXT_TAG = "AppThemeTextTestTag"
+    const val DIV3_TAG = "Div3TestTag"
+    const val DARK_THEME_TAG = "DarkThemeTag"
+    const val SYSTEM_THEME_TAG = "SystemThemeTag"
+    const val LIGHT_THEME_TAG = "LightThemeTag"
+
 
     /* Tags used for tests, MainActivity */
     const val SETTINGS_BUTTON_TEST_TAG = "SettingsButtonTag"

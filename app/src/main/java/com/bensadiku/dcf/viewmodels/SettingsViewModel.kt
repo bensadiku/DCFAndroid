@@ -1,9 +1,11 @@
 package com.bensadiku.dcf.viewmodels
 
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.bensadiku.dcf.models.NotificationTimer
+import com.bensadiku.dcf.models.ThemeType
 import com.bensadiku.dcf.util.Prefs
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
@@ -24,6 +26,21 @@ class SettingsViewModel @Inject constructor() : ViewModel() {
     private val _onNotificationsStateChange = MutableLiveData<Boolean>()
     val onNotificationsStateChange: LiveData<Boolean>
         get() = _onNotificationsStateChange
+
+    /**
+     * Observe theme changes and re render UI
+     */
+    private val _themeType = MutableLiveData<ThemeType>(Prefs.getTheme())
+    val themeType: LiveData<ThemeType>
+        get() = _themeType
+
+    var savedThemeType: ThemeType
+        get() {
+            return Prefs.getTheme()
+        }
+        set(theme) {
+            setApplicationTheme(theme)
+        }
 
     /**
      * To update the preferences and the lifecycle state which Compose is observing which will trigger a render
@@ -109,6 +126,28 @@ class SettingsViewModel @Inject constructor() : ViewModel() {
             NotificationTimer(interval = notificationHours, timeUnit = TimeUnit.HOURS)
         }
         Prefs.setNotificationTimeSeekbar(notificationTimer)
+    }
+
+    private fun setApplicationTheme(themeType: ThemeType) {
+        when (themeType) {
+            ThemeType.DARK -> {
+                AppCompatDelegate.setDefaultNightMode(
+                    AppCompatDelegate.MODE_NIGHT_YES
+                )
+            }
+            ThemeType.SYSTEM -> {
+                AppCompatDelegate.setDefaultNightMode(
+                    AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+                )
+            }
+            ThemeType.LIGHT -> {
+                AppCompatDelegate.setDefaultNightMode(
+                    AppCompatDelegate.MODE_NIGHT_NO
+                )
+            }
+        }
+        Prefs.setNewTheme(themeType)
+        _themeType.value = themeType
     }
 
     fun reset() {

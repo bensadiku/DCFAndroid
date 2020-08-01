@@ -2,27 +2,31 @@ package com.bensadiku.dcf.ui
 
 import androidx.compose.Composable
 import androidx.compose.state
+import androidx.ui.core.Alignment
+import androidx.ui.core.Alignment.Companion.CenterHorizontally
 import androidx.ui.core.Modifier
 import androidx.ui.core.testTag
 import androidx.ui.foundation.Text
 import androidx.ui.foundation.shape.corner.CutCornerShape
-import androidx.ui.graphics.Color
-import androidx.ui.layout.ConstraintLayout
-import androidx.ui.layout.Row
-import androidx.ui.layout.fillMaxSize
-import androidx.ui.layout.padding
+import androidx.ui.layout.*
 import androidx.ui.livedata.observeAsState
 import androidx.ui.material.*
 import androidx.ui.tooling.preview.Preview
 import androidx.ui.unit.dp
+import com.bensadiku.dcf.models.ThemeType
+import com.bensadiku.dcf.util.Constants.APP_THEME_TEXT_TAG
+import com.bensadiku.dcf.util.Constants.DARK_THEME_TAG
 import com.bensadiku.dcf.util.Constants.DIV1_TAG
 import com.bensadiku.dcf.util.Constants.DIV2_TAG
+import com.bensadiku.dcf.util.Constants.DIV3_TAG
 import com.bensadiku.dcf.util.Constants.ENABLE_PUSH_TEST_TAG
 import com.bensadiku.dcf.util.Constants.ENABLE_PUSH_TEXT_TEST_TAG
+import com.bensadiku.dcf.util.Constants.LIGHT_THEME_TAG
 import com.bensadiku.dcf.util.Constants.PUSH_TIMER_SLIDER_TEST_TAG
 import com.bensadiku.dcf.util.Constants.PUSH_TIMER_TEST_TAG
 import com.bensadiku.dcf.util.Constants.PUSH_TIMER_TEXT_TEST_TAG
 import com.bensadiku.dcf.util.Constants.RESET_EVERYTHING_BUTTON_TAG
+import com.bensadiku.dcf.util.Constants.SYSTEM_THEME_TAG
 import com.bensadiku.dcf.viewmodels.SettingsViewModel
 import timber.log.Timber
 
@@ -30,8 +34,10 @@ import timber.log.Timber
 @Preview
 @Composable
 fun SettingsApp(settingsViewModel: SettingsViewModel) {
-    MaterialTheme {
-        InitSettings(settingsViewModel = settingsViewModel)
+    CatFactTheme {
+        Surface(color = MaterialTheme.colors.background) {
+            InitSettings(settingsViewModel = settingsViewModel)
+        }
     }
 }
 
@@ -49,10 +55,16 @@ private fun InitSettings(settingsViewModel: SettingsViewModel) {
     /// Interval of the notifications state
     val timerTextState = settingsViewModel.timeSelected.observeAsState(initial = "")
 
+    /// App theme state
+    val appTheme =
+        settingsViewModel.themeType.observeAsState(initial = settingsViewModel.savedThemeType)
+
     ConstraintLayout(
         modifier = Modifier.padding(30.dp).fillMaxSize()
     ) {
-        val (firstRow, div1, pushTimerText, pushTimerSeekbar, pushTimerDateText, div2, resetEverythingBtn) = createRefs()
+        val (firstRow, pushTimerText, pushTimerSeekbar, pushTimerDateText, resetEverythingBtn) = createRefs()
+        val (nightModeText, nightModeRow) = createRefs()
+        val (div1, div2, div3) = createRefs()
 
         Row(modifier = Modifier.constrainAs(firstRow) {
             top.linkTo(parent.top)
@@ -65,7 +77,7 @@ private fun InitSettings(settingsViewModel: SettingsViewModel) {
             Switch(
                 checked = notificationEnabledState.value,
                 modifier = Modifier.padding(start = 6.dp).testTag(ENABLE_PUSH_TEST_TAG),
-                color = Color.Blue,
+                color = MaterialTheme.colors.primary,
                 onCheckedChange = { isChecked ->
                     Timber.w(" allow notifications $isChecked")
                     settingsViewModel.hasNotificationsEnabled = isChecked
@@ -95,7 +107,7 @@ private fun InitSettings(settingsViewModel: SettingsViewModel) {
                 start.linkTo(parent.start)
                 top.linkTo(pushTimerText.bottom)
             }.testTag(PUSH_TIMER_SLIDER_TEST_TAG),
-            color = Color.Blue,
+            color = MaterialTheme.colors.primary,
             valueRange = 0f..24 * 4f,
             onValueChangeEnd = {
                 settingsViewModel.saveNotificationTime()
@@ -116,21 +128,58 @@ private fun InitSettings(settingsViewModel: SettingsViewModel) {
             end.linkTo(parent.end)
             top.linkTo(pushTimerDateText.bottom)
         }.padding(10.dp).testTag(DIV2_TAG))
+        Text(text = "App Theme", modifier = Modifier.constrainAs(nightModeText) {
+            start.linkTo(parent.start)
+            end.linkTo(parent.end)
+            top.linkTo(div2.bottom)
+        }.padding(top = 10.dp, bottom = 10.dp).testTag(APP_THEME_TEXT_TAG))
+        Row(modifier = Modifier.constrainAs(nightModeRow) {
+            start.linkTo(parent.start)
+            end.linkTo(parent.end)
+            top.linkTo(nightModeText.bottom)
+        }) {
+            RadioButton(
+                modifier = Modifier.testTag(LIGHT_THEME_TAG),
+                selected = appTheme.value == ThemeType.LIGHT,
+                onClick = { settingsViewModel.savedThemeType = ThemeType.LIGHT }
+            )
+            Text(text = "Light")
+
+            RadioButton(
+                modifier = Modifier.testTag(DARK_THEME_TAG),
+                selected = appTheme.value == ThemeType.DARK,
+                onClick = { settingsViewModel.savedThemeType = ThemeType.DARK }
+            )
+            Text(text = "Dark")
+
+            RadioButton(
+                modifier = Modifier.testTag(SYSTEM_THEME_TAG),
+                selected = appTheme.value == ThemeType.SYSTEM,
+                onClick = { settingsViewModel.savedThemeType = ThemeType.SYSTEM }
+            )
+            Text(text = "System")
+        }
+        Divider(thickness = 1.dp, modifier = Modifier.constrainAs(div3) {
+            start.linkTo(parent.start)
+            end.linkTo(parent.end)
+            top.linkTo(nightModeRow.bottom)
+        }.padding(10.dp).testTag(DIV3_TAG))
         Button(
             onClick = {
                 settingsViewModel.reset()
                 //FIXME(BEN): Hack, don't modify state that doesn't belong to the view, this should automatically be updated by the Seekbar(Slider) itself
                 seekbarState.value =
                     settingsViewModel.getNotificationProgressSeekbar().toFloat()
+                settingsViewModel.savedThemeType = ThemeType.DARK
             },
             shape = CutCornerShape(2.dp),
             modifier = Modifier.constrainAs(resetEverythingBtn) {
                 start.linkTo(parent.start)
                 end.linkTo(parent.end)
-                top.linkTo(div2.bottom)
+                top.linkTo(div3.bottom)
             }.padding(top = 10.dp).testTag(RESET_EVERYTHING_BUTTON_TAG)
         ) {
-            Text(text = "Reset everything?")
+            Text(text = "Reset everything?", color = MaterialTheme.colors.onPrimary)
         }
     }
 }

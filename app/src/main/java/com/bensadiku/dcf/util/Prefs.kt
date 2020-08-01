@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import com.bensadiku.dcf.CatApplication
 import com.bensadiku.dcf.models.NotificationTimer
+import com.bensadiku.dcf.models.ThemeType
 import com.google.gson.Gson
 import timber.log.Timber
 
@@ -50,6 +51,24 @@ object Prefs {
             Timber.w("Retrieved notification timer $timer")
             timer
         }
+    }
+
+    /**
+     * Set the new app theme, save the type
+     */
+    fun setNewTheme(theme: ThemeType) {
+        Timber.i("Setting theme type to $theme")
+        getSharedPreferences().edit().putInt("App_Theme", theme.type).apply()
+    }
+
+    /**
+     * @return the app theme, by default it will be {@link ThemeType#DARK}
+     */
+    fun getTheme(): ThemeType {
+        val theme = getSharedPreferences().getInt("App_Theme", ThemeType.DARK.type)
+        val themeType = ThemeType.getByValue(theme)
+        Timber.i("Returning $themeType theme")
+        return themeType
     }
 
     fun resetAll() {

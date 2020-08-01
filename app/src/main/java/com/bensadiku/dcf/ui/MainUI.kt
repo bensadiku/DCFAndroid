@@ -10,16 +10,12 @@ import androidx.ui.foundation.Box
 import androidx.ui.foundation.ContentGravity
 import androidx.ui.foundation.Icon
 import androidx.ui.foundation.Text
-import androidx.ui.graphics.Color
 import androidx.ui.layout.ConstraintLayout
 import androidx.ui.layout.fillMaxSize
 import androidx.ui.layout.padding
 import androidx.ui.layout.wrapContentWidth
 import androidx.ui.livedata.observeAsState
-import androidx.ui.material.Button
-import androidx.ui.material.CircularProgressIndicator
-import androidx.ui.material.IconButton
-import androidx.ui.material.MaterialTheme
+import androidx.ui.material.*
 import androidx.ui.material.icons.Icons
 import androidx.ui.material.icons.filled.Settings
 import androidx.ui.unit.dp
@@ -33,8 +29,10 @@ import com.bensadiku.dcf.viewmodels.MainViewModel
 
 @Composable
 fun MainApp(mainViewModel: MainViewModel) {
-    MaterialTheme {
-        CatFact(mainViewModel)
+    CatFactTheme {
+        Surface(color = MaterialTheme.colors.background) {
+            CatFact(mainViewModel)
+        }
     }
 }
 
@@ -63,7 +61,7 @@ private fun LiveDataComponentFact(catFact: String, mainViewModel: MainViewModel)
             top.linkTo(parent.top)
             end.linkTo(parent.end)
         }.padding(16.dp).testTag(SETTINGS_BUTTON_TEST_TAG)) {
-            Icon(asset = Icons.Filled.Settings, tint = Color.Blue)
+            Icon(asset = Icons.Filled.Settings, tint = MaterialTheme.colors.primary)
         }
         Text(
             text = catFact,
@@ -82,7 +80,7 @@ private fun LiveDataComponentFact(catFact: String, mainViewModel: MainViewModel)
                 top.linkTo(catFactRef.bottom, margin = 50.dp)
             },
         ) {
-            Text(text = "Request another")
+            Text(text = "Request another", color = MaterialTheme.colors.onPrimary)
         }
     }
 }
