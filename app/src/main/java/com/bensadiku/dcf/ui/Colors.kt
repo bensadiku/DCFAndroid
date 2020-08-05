@@ -1,6 +1,6 @@
 package com.bensadiku.dcf.ui
 
-import androidx.ui.graphics.Color
+import androidx.compose.ui.graphics.Color
 
 val Purple1 = Color(0xFFBDA1F0)
 val Purple2 = Color(0xFF9B6EEB)

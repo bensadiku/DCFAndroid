@@ -2,9 +2,9 @@ package com.bensadiku.dcf.activities
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.ui.platform.setContent
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
-import androidx.ui.core.setContent
 import com.bensadiku.dcf.CatApplication
 import com.bensadiku.dcf.ui.SettingsApp
 import com.bensadiku.dcf.viewmodels.SettingsViewModel

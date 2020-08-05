@@ -3,6 +3,7 @@
 buildscript {
     ext.kotlin_version = "1.4-M3"
     ext.okhttp_version = "3.4.1"
+    ext.compose_version = "0.1.0-dev16"
 
     repositories {
         google()

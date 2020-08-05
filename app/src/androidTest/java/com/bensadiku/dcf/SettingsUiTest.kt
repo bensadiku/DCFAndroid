@@ -59,7 +59,7 @@ class SettingsUiTest {
         onNodeWithTag(PUSH_TIMER_TEXT_TEST_TAG).assertTextEquals("12 hours.")
         onNodeWithTag(PUSH_TIMER_SLIDER_TEST_TAG).assertValueEquals("50 percent")
         onNodeWithTag(DARK_THEME_TAG).assertIsSelected()
-        onNodeWithTag(SYSTEM_THEME_TAG).assertIsUnselected()
-        onNodeWithTag(LIGHT_THEME_TAG).assertIsUnselected()
+        onNodeWithTag(SYSTEM_THEME_TAG).assertIsNotSelected()
+        onNodeWithTag(LIGHT_THEME_TAG).assertIsNotSelected()
     }
 }

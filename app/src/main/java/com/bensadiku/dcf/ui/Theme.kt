@@ -1,15 +1,15 @@
 package com.bensadiku.dcf.ui
 
-import androidx.compose.Composable
-import androidx.ui.foundation.isSystemInDarkTheme
-import androidx.ui.graphics.Color
-import androidx.ui.material.MaterialTheme
-import androidx.ui.material.darkColorPalette
-import androidx.ui.material.lightColorPalette
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.darkColors
+import androidx.compose.material.lightColors
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 import com.bensadiku.dcf.models.ThemeType
 import com.bensadiku.dcf.util.Prefs
 
-private val LightThemeColors = lightColorPalette(
+private val LightThemeColors = lightColors(
     primary = Purple3,
     primaryVariant = Purple5,
     onPrimary = Color.White,
@@ -19,7 +19,7 @@ private val LightThemeColors = lightColorPalette(
     error = Purple4
 )
 
-private val DarkThemeColors = darkColorPalette(
+private val DarkThemeColors = darkColors(
     primary = Purple2,
     primaryVariant = Purple3,
     onPrimary = Color.Black,

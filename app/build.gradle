@@ -16,8 +16,8 @@ android {
         jvmTarget = JavaVersion.VERSION_1_8.toString()
     }
     composeOptions {
-        kotlinCompilerVersion "1.4.0-dev-withExperimentalGoogleExtensions-20200720"
-        kotlinCompilerExtensionVersion "0.1.0-dev15"
+        kotlinCompilerVersion "1.4.0-rc"
+        kotlinCompilerExtensionVersion compose_version
     }
     kapt {
         generateStubs = true
@@ -64,8 +64,8 @@ android {
 
 tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
     kotlinOptions {
-        jvmTarget = "1.8"
-        freeCompilerArgs += ["-Xallow-jvm-ir-dependencies", "-Xskip-prerelease-check"]
+        jvmTarget = JavaVersion.VERSION_1_8.toString()
+        freeCompilerArgs += ["-Xallow-jvm-ir-dependencies", "-Xskip-prerelease-check", "-Xskip-metadata-version-check"]
     }
 }
 
@@ -125,7 +125,6 @@ dependencies {
     kapt "com.squareup.inject:assisted-inject-processor-dagger2:0.3.2"
 
     // Compose
-    def compose_version = '0.1.0-dev15'
     implementation "androidx.compose.runtime:runtime:$compose_version"
     implementation "androidx.compose.ui:ui:$compose_version"
     implementation "androidx.ui:ui-tooling:$compose_version"
