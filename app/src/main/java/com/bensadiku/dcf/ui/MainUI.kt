@@ -19,6 +19,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
+import androidx.ui.tooling.preview.Preview
 import com.bensadiku.dcf.CatApplication
 import com.bensadiku.dcf.activities.SettingsActivity
 import com.bensadiku.dcf.util.Constants.FACT_TEXT_TEST_TAG
@@ -46,6 +47,7 @@ fun CatFact(mainViewModel: MainViewModel) {
     }
 }
 
+@Preview
 @Composable
 private fun LiveDataComponentFact(catFact: String, mainViewModel: MainViewModel) {
     ConstraintLayout(modifier = Modifier.fillMaxSize()) {

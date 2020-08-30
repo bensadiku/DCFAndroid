@@ -9,6 +9,7 @@ import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.state
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -50,8 +51,8 @@ private fun InitSettings(settingsViewModel: SettingsViewModel) {
         initial = settingsViewModel.hasNotificationsEnabled
     )
     /// Seekbar (Slider) state
-    val seekbarState =
-        state(init = { settingsViewModel.getNotificationProgressSeekbar().toFloat() })
+    var seekbarState =
+        remember  { settingsViewModel.getNotificationProgressSeekbar().toFloat() }
 
     /// Interval of the notifications state
     val timerTextState = settingsViewModel.timeSelected.observeAsState(initial = "")
@@ -108,16 +109,16 @@ private fun InitSettings(settingsViewModel: SettingsViewModel) {
                 start.linkTo(parent.start)
                 top.linkTo(pushTimerText.bottom)
             }.testTag(PUSH_TIMER_SLIDER_TEST_TAG),
-            color = MaterialTheme.colors.primary,
+            activeTrackColor = MaterialTheme.colors.primary,
             valueRange = 0f..24 * 4f,
             onValueChangeEnd = {
                 settingsViewModel.saveNotificationTime()
             },
             onValueChange = { progress ->
                 settingsViewModel.calculateAndShowTimer((progress + 1).toInt())
-                seekbarState.value = progress
+                seekbarState = progress
             },
-            value = seekbarState.value
+            value = seekbarState
         )
         Text(timerTextState.value, modifier = Modifier.constrainAs(pushTimerDateText) {
             start.linkTo(parent.start)
@@ -169,8 +170,7 @@ private fun InitSettings(settingsViewModel: SettingsViewModel) {
             onClick = {
                 settingsViewModel.reset()
                 //FIXME(BEN): Hack, don't modify state that doesn't belong to the view, this should automatically be updated by the Seekbar(Slider) itself
-                seekbarState.value =
-                    settingsViewModel.getNotificationProgressSeekbar().toFloat()
+                seekbarState = settingsViewModel.getNotificationProgressSeekbar().toFloat()
                 settingsViewModel.savedThemeType = ThemeType.DARK
             },
             shape = CutCornerShape(2.dp),

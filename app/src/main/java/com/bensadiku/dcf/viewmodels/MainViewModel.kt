@@ -9,7 +9,8 @@ import com.bensadiku.dcf.repository.CatFactApiRepository
 import timber.log.Timber
 import javax.inject.Inject
 
-class MainViewModel @Inject constructor(private val catFactApiRepository: CatFactApiRepository) : ViewModel() {
+class MainViewModel @Inject constructor(private val catFactApiRepository: CatFactApiRepository) :
+    ViewModel() {
 
     // Observed by the activity compose function for changes
     private val _catFact = MutableLiveData<String>()
@@ -17,23 +18,25 @@ class MainViewModel @Inject constructor(private val catFactApiRepository: CatFac
         get() = _catFact
 
     fun getFact() {
-        catFactApiRepository.getCatFacts(object : CatFactCallback {
-            override fun gotFact(catFact: CatFact) {
-                Timber.d("got fact $catFact")
-                _catFact.value = catFact.fact
-            }
+        catFactApiRepository.getCatFacts(catFactCallback)
+    }
 
-            override fun failedFact(throwable: Throwable) {
-                Timber.d("failedFact ${throwable.printStackTrace()}")
-                _catFact.value = "Failed to fetch the latest fact: ${throwable.message}"
-            }
-        })
+    private val catFactCallback:CatFactCallback = object : CatFactCallback {
+        override fun gotFact(catFact: CatFact) {
+            Timber.d("got fact $catFact")
+            _catFact.value = catFact.fact
+        }
+
+        override fun failedFact(throwable: Throwable) {
+            Timber.d("failedFact ${throwable.printStackTrace()}")
+            _catFact.value = "Failed to fetch the latest fact: ${throwable.message}"
+        }
     }
 
     /**
      * @param fact is set by the notification
      */
-    fun setFact(fact: String){
+    fun setFact(fact: String) {
         _catFact.postValue(fact)
     }
 
